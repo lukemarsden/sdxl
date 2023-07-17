@@ -14,7 +14,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     pip3 install -r requirements.txt && \
     pip3 install huggingface_hub==0.16.4 && \
     huggingface-cli login --token $HUGGINGFACE_TOKEN && \
-    python3 -c 'from diffusers import DiffusionPipeline; DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")'
+    python3 -c 'from diffusers import DiffusionPipeline; import torch; DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-xl-base-0.9", torch_dtype=torch.float16, use_safetensors=True, variant="fp16")'
+
+# TODO: cache:
+# pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
 
 ADD inference.py /app/inference.py
 ENTRYPOINT ["python3", "/app/inference.py"]
