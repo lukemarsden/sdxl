@@ -9,7 +9,7 @@ WORKDIR /app
 # it for every inference.
 ADD requirements.txt /app/requirements.txt
 
-RUN apt-get update -y && apt-get install -y python3 python3-pip git && \
+RUN apt-get update -y && apt-get install -y python3 python3-pip git libgl1-mesa-glx libglib2.0-0 && \
     pip3 install -r requirements.txt && \
     pip3 install huggingface_hub==0.16.4 && \
     huggingface-cli login --token $HUGGINGFACE_TOKEN && \

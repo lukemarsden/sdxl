@@ -35,4 +35,7 @@ pipe.enable_model_cpu_offload()
 
 prompt = os.getenv("PROMPT", "An astronaut riding a green horse")
 
-images = pipe(prompt=prompt).images[0]
+image = pipe(prompt=prompt).images[0]
+
+# OUTPUT_DIR must have a trailing slash
+image.save(os.getenv("OUTPUT_DIR", "") + "image0.png")
