@@ -19,7 +19,8 @@ def set_seed(seed: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
     print(f"Random seed set as {seed}")
 
-set_seed(int(os.getenv("RANDOM_SEED", "42")))
+seed = int(os.getenv("RANDOM_SEED", "42"))
+set_seed(seed)
 
 pipe = DiffusionPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-0.9",
@@ -27,15 +28,14 @@ pipe = DiffusionPipeline.from_pretrained(
     use_safetensors=True,
     variant="fp16",
 )
-#pipe.to("cuda")
-pipe.enable_model_cpu_offload()
+pipe.to("cuda")
+#pipe.enable_model_cpu_offload()
 
-# Not on my puny 1080
-#pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
+pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
 
 prompt = os.getenv("PROMPT", "An astronaut riding a green horse")
 
 image = pipe(prompt=prompt).images[0]
 
 # OUTPUT_DIR must have a trailing slash
-image.save(os.getenv("OUTPUT_DIR", "") + "image0.png")
+image.save(os.getenv("OUTPUT_DIR", "") + f"image-{seed}.png")
