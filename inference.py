@@ -29,13 +29,19 @@ pipe = DiffusionPipeline.from_pretrained(
     variant="fp16",
 )
 pipe.to("cuda")
+
+# For low GPU memory:
 #pipe.enable_model_cpu_offload()
 
-pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
+# To compile graph, but seems to be slower. Maybe the compiled graph isn't getting cached?
+#pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
 
 prompt = os.getenv("PROMPT", "An astronaut riding a green horse")
 
-image = pipe(prompt=prompt).images[0]
+images = pipe(prompt=prompt).images
+print(f"Got {len(images)} images")
+
+image = images[0]
 
 # OUTPUT_DIR must have a trailing slash
 image.save(os.getenv("OUTPUT_DIR", "") + f"image-{seed}.png")
