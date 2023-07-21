@@ -46,7 +46,7 @@ g.manual_seed(seed)
 
 prompt = os.getenv("PROMPT", "An astronaut riding a green horse")
 
-images = pipe(prompt=prompt, generator=g, output_type="latent").images
+images = pipe(prompt=prompt, generator=g).images
 print(f"Got {len(images)} images")
 
 image = images[0]
