@@ -1,8 +1,14 @@
-from diffusers import DiffusionPipeline
-import torch
 import os
+import torch
+
+from diffusers import DDIMScheduler, DiffusionPipeline
 import numpy as np
 import random
+
+os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":16:8"
+
+torch.backends.cudnn.benchmark = False
+torch.use_deterministic_algorithms(True)
 
 # pip install --upgrade huggingface_hub
 # huggingface-cli login --token $HUGGINGFACE_TOKEN
@@ -27,8 +33,10 @@ pipe = DiffusionPipeline.from_pretrained(
     torch_dtype=torch.float16,
     use_safetensors=True,
     variant="fp16",
-)
-pipe.to("cuda")
+).to("cuda")
+pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
+g = torch.Generator(device="cuda")
+g.manual_seed(seed)
 
 # For low GPU memory:
 #pipe.enable_model_cpu_offload()
@@ -38,7 +46,7 @@ pipe.to("cuda")
 
 prompt = os.getenv("PROMPT", "An astronaut riding a green horse")
 
-images = pipe(prompt=prompt).images
+images = pipe(prompt=prompt, generator=g, output_type="latent").images
 print(f"Got {len(images)} images")
 
 image = images[0]
